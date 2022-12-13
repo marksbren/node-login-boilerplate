@@ -3,6 +3,7 @@ var session = require('express-session');
 var csrf = require('csurf');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const helmet = require("helmet");
 var path = require('path');
 
 const bodyParser = require('body-parser');
@@ -18,6 +19,7 @@ module.exports = function(app, passport) {
   app.locals.pluralize = require('pluralize');
 
   app.use(logger('dev'));
+  app.use(helmet());
 
   app.use(cookieParser());
 
