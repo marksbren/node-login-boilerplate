@@ -1,14 +1,10 @@
 require('dotenv').config();
 var createError = require('http-errors');
 var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
-var logger = require('morgan');
-var session = require('express-session');
-var csrf = require('csurf');
 var passport = require('passport');
-var logger = require('morgan');
+var app = express();
+
+
 const mongoose = require('mongoose');
 
 mongoose.set('strictQuery', true);
@@ -17,57 +13,13 @@ mongoose.connect(process.env.MONGODB_URL, {
 	useUnifiedTopology: true
 })
 
+// Bootstrap routes
+require('./config/passport')(passport);
+require('./config/express')(app, passport);
+
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var authRouter = require('./routes/auth');
-
-const MongoStore = require("connect-mongo");
-
-var app = express();
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
-
-app.locals.pluralize = require('pluralize');
-
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-
-app.use(
-  bodyParser.urlencoded({
-    extended: true
-  })
-);
-app.use(bodyParser.json());
-
-
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.use(session({
-  secret: 'keyboard cat',
-  resave: false, // don't save session if unmodified
-  saveUninitialized: false, // don't create session until something stored
-  store: MongoStore.create({mongoUrl: process.env.MONGODB_URL})
-}));
-
-
-
-app.use(csrf())
-app.use(passport.authenticate('session'));
-app.use(function(req, res, next) {
-  var msgs = req.session.messages || [];
-  res.locals.messages = msgs;
-  res.locals.hasMessages = !! msgs.length;
-  req.session.messages = [];
-  next();
-});
-app.use(function(req, res, next) {
-  res.locals.csrfToken = req.csrfToken();
-  next();
-});
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
