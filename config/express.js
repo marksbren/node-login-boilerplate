@@ -41,8 +41,12 @@ module.exports = function(app, passport) {
   }));
 
 
+  if(process.env.NODE_ENV === 'test'){
+    app.use(csrf({ ignoreMethods: ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT' /* etc */] }))
+  }else{
+    app.use(csrf())
+  }
 
-  app.use(csrf())
   app.use(passport.authenticate('session'));
   app.use(function(req, res, next) {
     var msgs = req.session.messages || [];

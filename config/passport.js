@@ -25,14 +25,12 @@ const local = new LocalStrategy(
 
 module.exports = function(passport) {
   passport.serializeUser(function(user, cb) {
-    console.log("serializeUser")
     process.nextTick(function() {
       cb(null, { id: user._id, email: user.email });
     });
   });
   
   passport.deserializeUser(function(user, cb) {
-    console.log("deserializeUser")
     process.nextTick(function() {
       return cb(null, user);
     });

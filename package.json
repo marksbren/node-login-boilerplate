@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node --inspect ./bin/www"
+    "test": "NODE_ENV=test mocha",
+    "start": "nodemon --exec node ./bin/www"
   },
   "dependencies": {
     "connect-mongo": "^4.6.0",
@@ -14,11 +15,16 @@
     "express-session": "^1.17.3",
     "helmet": "^6.0.1",
     "http-errors": "~1.6.3",
+    "mocha": "^10.2.0",
     "mongoose": "^6.8.0",
     "morgan": "~1.9.1",
     "passport": "^0.6.0",
     "passport-local": "^1.0.0",
     "pluralize": "^8.0.0",
     "pug": "^2.0.4"
+  },
+  "devdependencies": {
+    "chai": "^4.3.7",
+    "supertest": "^6.3.3"
   }
 }
