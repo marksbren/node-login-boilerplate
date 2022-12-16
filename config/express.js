@@ -5,6 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const helmet = require("helmet");
 var path = require('path');
+var flash = require('connect-flash');
 
 const bodyParser = require('body-parser');
 
@@ -37,7 +38,8 @@ module.exports = function(app, passport) {
     secret: 'keyboard cat',
     resave: false, // don't save session if unmodified
     saveUninitialized: false, // don't create session until something stored
-    store: MongoStore.create({mongoUrl: process.env.MONGODB_URL})
+    store: MongoStore.create({mongoUrl: process.env.MONGODB_URL}),
+    cookie: {secure: false }
   }));
 
 
@@ -60,9 +62,23 @@ module.exports = function(app, passport) {
     next();
   });
 
+  app.use(flash());
+
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
 
   app.use(express.static(path.join('public')));
+
+  // error handler
+  app.use(function(err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
+    next()
+  });
 
 }

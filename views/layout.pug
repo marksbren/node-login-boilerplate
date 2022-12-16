@@ -4,4 +4,13 @@ html
     title= title
     link(rel='stylesheet', href='/stylesheets/style.css')
   body
+    if infos
+      for info in infos
+        div.alert.alert-info #{ info }
+    if errors
+      for error, i in errors
+        div.alert.alert-danger #{ error }
+    if successes
+      for success, i in successes
+        div.alert.alert-success #{ success }
     block content
