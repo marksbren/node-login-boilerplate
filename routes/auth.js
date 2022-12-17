@@ -7,6 +7,8 @@ var passport = require('passport');
 
 const User = mongoose.model('User');
 
+const { sendMail } = require('../mailers/forgot-password')
+
 const nodemailer = require('nodemailer');
 const nodemailerSendgrid = require('nodemailer-sendgrid');
 const transport = nodemailer.createTransport(nodemailerSendgrid({
@@ -15,7 +17,11 @@ const transport = nodemailer.createTransport(nodemailerSendgrid({
 
 
 router.get('/login', function(req, res, next) {
-  res.render('login');
+  res.render('login',{ 
+    errors: req.flash("error"), 
+    infos: req.flash("info"), 
+    successes: req.flash("success") 
+  });
 });
 
 router.post('/login/password', passport.authenticate('local', {
@@ -61,7 +67,7 @@ router.post('/forgot', function(req, res, next) {
   const token = crypto.randomBytes(20).toString('hex');
   User.findOne({email: req.body.email}).then((user) => {
     if (!user) {
-      req.flash('error', "No account with that email address exists.");
+      req.flash('info', "An email has been sent with further instructions.");
       return res.redirect('/forgot');
     }
 
@@ -69,20 +75,10 @@ router.post('/forgot', function(req, res, next) {
     user.reset_expires = Date.now() + 3600000
     user.save()
 
-    const resetEmail = {
-      to: user.email,
-      from: 'passwordreset@example.com',
-      subject: 'Node.js Password Reset',
-      text: `
-        You are receiving this because you (or someone else) have requested the reset of the password for your account.
-        Please click on the following link, or paste this into your browser to complete the process:
-        http://${req.headers.host}/reset/${token}
-        If you did not request this, please ignore this email and your password will remain unchanged.
-      `,
-    };
-    console.log(resetEmail)
-    // transport.sendMail(resetEmail);
-    req.flash('info', `An e-mail has been sent to ${user.email} with further instructions.`);
+    var reset_url = `http://${req.headers.host}/reset/${token}`
+    sendMail(user.email,user.name,reset_url)
+
+    req.flash('info', "An email has been sent with further instructions.");
     res.redirect('/forgot');
   })
 
@@ -94,16 +90,19 @@ router.get('/reset/:token', (req, res) => {
       req.flash('error', 'Password reset token is invalid or has expired.');
       return res.redirect('/forgot');
     }
-    res.render('reset',{ reset_token: req.params.token,
-      errors: req.flash("error"), infos: req.flash("info"), successes: req.flash("success") })
-    // res.redirect(`/reset/${req.params.token}`);
+    res.render('reset',{ 
+      reset_token: req.params.token,
+      errors: req.flash("error"), 
+      infos: req.flash("info"), 
+      successes: req.flash("success") 
+    })
   })
 
 router.post('/reset/:token', (req, res) => {
   User.findOne({reset_token: req.params.token, reset_expires: { $gt:  Date.now() }}).then((user) => {
     if(!user){
       req.flash('error', 'Password reset token is invalid or has expired.');
-      return res.redirect(`/reset/${req.params.token}`);
+      return res.redirect('/forgot');
     }
 
     var salt = crypto.randomBytes(16).toString('base64');
@@ -116,7 +115,7 @@ router.post('/reset/:token', (req, res) => {
     });
 
     req.flash('success', `Password updated`);
-    res.redirect(`/reset/${req.params.token}`);
+    res.redirect('/login');
 
   })
 })
