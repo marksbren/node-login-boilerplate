@@ -4,6 +4,9 @@ const Schema = mongoose.Schema;
 const User = new Schema({
   name: { type: String, default: '' },
   email: { type: String, default: '' },
+  email_verified: { type: Boolean, default: false },
+  verification_token: { type: String, default: '' },
+  verification_expires: { type: Date, default: Date.now },
   hashed_password: { type: String, default: '' },
   salt: { type: String, default: '' },
   reset_token: { type: String, default: '' },

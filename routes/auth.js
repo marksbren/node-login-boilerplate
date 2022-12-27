@@ -7,7 +7,7 @@ var passport = require('passport');
 
 const User = mongoose.model('User');
 
-const { sendMail } = require('../mailers/forgot-password')
+const { sendForgotPasswordEmail, sendEmailVerification  } = require('../mailers/auth')
 
 const nodemailer = require('nodemailer');
 const nodemailerSendgrid = require('nodemailer-sendgrid');
@@ -33,6 +33,14 @@ router.get('/signup', function(req, res, next) {
   res.render('signup');
 });
 
+router.get('/verify', function(req, res, next) {
+  res.render('verify',{ 
+    errors: req.flash("error"), 
+    infos: req.flash("info"), 
+    successes: req.flash("success") 
+  });
+});
+
 router.post('/signup', function(req, res, next) {
   var salt = crypto.randomBytes(16).toString('base64');
   crypto.pbkdf2(req.body.password, salt, 310000, 32, 'sha256', function(err, hashedPassword) {
@@ -41,13 +49,22 @@ router.post('/signup', function(req, res, next) {
       if(user){
         return res.status(400).json({msg:"Email already exists"})
       } else {
+        const token = crypto.randomBytes(20).toString('hex');
         const newUser = new User({
           email: req.body.email,
           hashed_password: hashedPassword.toString('base64'),
-          salt: salt
+          salt: salt,
+          verification_token: token,
+          verification_expires: Date.now() + 3600000
         })
         newUser.save()
-        return res.status(200).json({msg:{newUser}})
+        var token_url = `http://${req.headers.host}/verify/${token}`
+        sendEmailVerification(newUser.email,newUser.name,token_url)
+
+        req.login(newUser, function(err) {
+          if (err) {console.log(err);}
+          return res.redirect('/verify');
+        });
       }
     });
   });
@@ -76,12 +93,32 @@ router.post('/forgot', function(req, res, next) {
     user.save()
 
     var reset_url = `http://${req.headers.host}/reset/${token}`
-    sendMail(user.email,user.name,reset_url)
+    sendForgotPasswordEmail(user.email,user.name,reset_url)
 
     req.flash('info', "An email has been sent with further instructions.");
     res.redirect('/forgot');
   })
 
+});
+
+router.get('/verify/:token', (req, res) => {
+  User.findOne({verification_token: req.params.token, verification_expires: { $gt:  Date.now() }}).then((user) => {
+    if(!user){
+      console.log(req.params.token)
+      console.log(Date.now())
+      req.flash('error', 'Email could not be verified or the verification has expired');
+      return res.redirect('/verify');
+    }
+    user.email_verified = true
+    user.verification_token = ''
+    user.verification_expires = Date.now()
+    user.save()
+    req.login(user, function(err) {
+      if (err) {console.log(err);}
+      req.flash('success', `Email Verified`);
+      return res.redirect('/users');
+    });
+  });
 });
 
 router.get('/reset/:token', (req, res) => {

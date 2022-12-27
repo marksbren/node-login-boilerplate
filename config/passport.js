@@ -10,7 +10,7 @@ const local = new LocalStrategy(
   },
   function verify(email, password, cb) {
     User.findOne({email: email}).then((user) => {
-      if (!user) { return done(null, false, { message: 'Incorrect email or password.' }); }
+      if (!user) { return cb(null, false, { message: 'Incorrect email or password.' }); }
       crypto.pbkdf2(password, user.salt, 310000, 32, 'sha256', function(err, hashedPassword) {
         var base64Hash = hashedPassword.toString('base64')
         if (err) { return cb(err); }
@@ -26,7 +26,7 @@ const local = new LocalStrategy(
 module.exports = function(passport) {
   passport.serializeUser(function(user, cb) {
     process.nextTick(function() {
-      cb(null, { id: user._id, email: user.email });
+      cb(null, { id: user._id, email: user.email, verified: user.email_verified});
     });
   });
   

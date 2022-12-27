@@ -4,7 +4,7 @@ const sgMail = require('@sendgrid/mail')
 sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 
-const sendMail = (email, name, reset_url) => {
+const sendForgotPasswordEmail = (email, name, reset_url) => {
   sgMail.send({
       to: email, // receiver email address
       from: process.env.SENDGRID_FROM_EMAIL, 
@@ -17,7 +17,22 @@ const sendMail = (email, name, reset_url) => {
   })
 }
 
+const sendEmailVerification = (email, name, token_url) => {
+  sgMail.send({
+      to: email, // receiver email address
+      from: process.env.SENDGRID_FROM_EMAIL, 
+      templateId: process.env.SENDGRID_EMAIL_VERIFICATION_TEMPLATE,
+      dynamic_template_data: {
+        name: name,
+        token_url: token_url
+      },
+      
+  })
+}
+
 module.exports = {
-  sendMail
+  sendForgotPasswordEmail,
+  sendEmailVerification
+
 }
   
