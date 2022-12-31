@@ -15,6 +15,8 @@ const transport = nodemailer.createTransport(nodemailerSendgrid({
   apiKey: process.env.SENDGRID_API_KEY,
 }));
 
+const signup_controller = require("../controllers/signup");
+
 
 router.get('/login', function(req, res, next) {
   res.render('login',{ 
@@ -26,7 +28,8 @@ router.get('/login', function(req, res, next) {
 
 router.post('/login/password', passport.authenticate('local', {
   successRedirect: '/users',
-  failureRedirect: '/login'
+  failureRedirect: '/login',
+  failureFlash : true
 }));
 
 router.get('/signup', function(req, res, next) {
@@ -41,34 +44,9 @@ router.get('/verify', function(req, res, next) {
   });
 });
 
-router.post('/signup', function(req, res, next) {
-  var salt = crypto.randomBytes(16).toString('base64');
-  crypto.pbkdf2(req.body.password, salt, 310000, 32, 'sha256', function(err, hashedPassword) {
-    if (err) { return next(err); }
-    User.findOne({email: req.body.email}).then((user) => {
-      if(user){
-        return res.status(400).json({msg:"Email already exists"})
-      } else {
-        const token = crypto.randomBytes(20).toString('hex');
-        const newUser = new User({
-          email: req.body.email,
-          hashed_password: hashedPassword.toString('base64'),
-          salt: salt,
-          verification_token: token,
-          verification_expires: Date.now() + 3600000
-        })
-        newUser.save()
-        var token_url = `http://${req.headers.host}/verify/${token}`
-        sendEmailVerification(newUser.email,newUser.name,token_url)
-
-        req.login(newUser, function(err) {
-          if (err) {console.log(err);}
-          return res.redirect('/verify');
-        });
-      }
-    });
-  });
-});
+router.post('/signup', 
+  signup_controller.validate('createUser'),
+  signup_controller.create_user);
 
 router.get('/logout', function (req, res){
   req.session.destroy(function (err) {

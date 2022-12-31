@@ -31,9 +31,6 @@ module.exports = function(app, passport) {
   );
   app.use(bodyParser.json());
 
-
-
-
   app.use(session({
     secret: 'keyboard cat',
     resave: false, // don't save session if unmodified
