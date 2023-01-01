@@ -33,7 +33,10 @@ router.post('/login/password', passport.authenticate('local', {
 }));
 
 router.get('/signup', function(req, res, next) {
-  res.render('signup');
+  res.render('signup', {
+    errors: req.flash("error"), 
+    infos: req.flash("info"), 
+    successes: req.flash("success")});
 });
 
 router.get('/verify', function(req, res, next) {

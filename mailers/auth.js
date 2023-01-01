@@ -5,6 +5,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 
 const sendForgotPasswordEmail = (email, name, reset_url) => {
+  if(process.env.NODE_ENV === 'test'){ return }
   sgMail.send({
       to: email, // receiver email address
       from: process.env.SENDGRID_FROM_EMAIL, 
@@ -18,6 +19,7 @@ const sendForgotPasswordEmail = (email, name, reset_url) => {
 }
 
 const sendEmailVerification = (email, name, token_url) => {
+  if(process.env.NODE_ENV === 'test'){ return }
   sgMail.send({
       to: email, // receiver email address
       from: process.env.SENDGRID_FROM_EMAIL, 

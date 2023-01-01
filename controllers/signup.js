@@ -19,7 +19,10 @@ exports.validate = (method) => {
 exports.create_user = (req, res) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    for(index in errors.array()){
+      req.flash('error', `${errors.array()[index].msg}`)
+    }
+    return res.redirect('/signup');
   }
   var salt = crypto.randomBytes(16).toString('base64');
   crypto.pbkdf2(req.body.password, salt, 310000, 32, 'sha256', function(err, hashedPassword) {
