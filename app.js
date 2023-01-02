@@ -16,11 +16,9 @@ require('./config/passport')(passport);
 require('./config/express')(app, passport);
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 var authRouter = require('./routes/auth');
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
 app.use('/', authRouter);
 
 // catch 404 and forward to error handler

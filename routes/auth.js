@@ -18,7 +18,18 @@ const transport = nodemailer.createTransport(nodemailerSendgrid({
 const signup_controller = require("../controllers/signup");
 
 
-router.get('/login', function(req, res, next) {
+const loggedOutOnly = (req, res, next) => {
+  if (!req.user) {
+    return next();
+  }
+  req.session.returnTo = req.originalUrl;
+  if (req.user && !req.user.verified){
+    return res.redirect("/verify");
+  }
+  return res.redirect("/");
+};
+
+router.get('/login', loggedOutOnly, function(req, res, next) {
   res.render('login',{ 
     errors: req.flash("error"), 
     infos: req.flash("info"), 
@@ -27,12 +38,12 @@ router.get('/login', function(req, res, next) {
 });
 
 router.post('/login/password', passport.authenticate('local', {
-  successRedirect: '/users',
+  successRedirect: '/',
   failureRedirect: '/login',
   failureFlash : true
 }));
 
-router.get('/signup', function(req, res, next) {
+router.get('/signup', loggedOutOnly, function(req, res, next) {
   res.render('signup', {
     errors: req.flash("error"), 
     infos: req.flash("info"), 
@@ -57,7 +68,7 @@ router.get('/logout', function (req, res){
   });
 });
 
-router.get('/forgot', function(req, res, next) {
+router.get('/forgot', loggedOutOnly, function(req, res, next) {
   res.render('forgot', {errors: req.flash("error"), infos: req.flash("info"), successes: req.flash("success")});
 });
 
@@ -97,7 +108,7 @@ router.get('/verify/:token', (req, res) => {
     req.login(user, function(err) {
       if (err) {console.log(err);}
       req.flash('success', `Email Verified`);
-      return res.redirect('/users');
+      return res.redirect('/');
     });
   });
 });

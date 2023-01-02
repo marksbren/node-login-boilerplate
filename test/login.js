@@ -21,15 +21,15 @@ before(function(done){
     });
 });
 
-describe('GET /users', function(done){
+// TODO: change this to the homepage (now has logged in & logged out states)
+describe('GET / when logged in', function(done){
     it('should 302 to /verify if the user is not verified ', function(done){
-      authenticatedUser.get('/users')
+      authenticatedUser.get('/')
       .expect('Location', '/verify')
       .expect(302, done);
     });
-    it('should return a 302 response and redirect to /login', function(done){
-      request(app).get('/users')
-      .expect('Location', '/login')
-      .expect(302, done);
+    it('should return a 200 response with logged out page', function(done){
+      request(app).get('/')
+      .expect(200, done);
     });
   });
