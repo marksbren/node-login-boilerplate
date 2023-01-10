@@ -13,14 +13,14 @@ const secured = (req, res, next) => {
 };
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/', function(req, res) {
   if (req.user && req.user.verified) {
-    res.render('Dashboard');
+    return res.render('Dashboard');
   }
   if (req.user && !req.user.verified){
     return res.redirect("/verify");
   }
-  res.render('index');
+  return res.render('index');
   
 });
 

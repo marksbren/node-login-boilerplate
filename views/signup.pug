@@ -1,11 +1,16 @@
 extends layout  
 
 block content
-    h2 Signup
-    form(action="/signup" method="POST")
-        p email:
-            input(type="text" name="email" placeholder="" required)
-        p password:
-            input(type="password" name="password" placeholder="" required)
-            input(type="hidden" name="_csrf" value=csrfToken) 
-        input(type="submit")
+    div.row
+        div.col-sm-4.col-sm-offset-4
+            h1 Signup
+            form(action="/signup" method="POST")
+                div.form-group
+                    label(for="inputEmail") Email
+                    input.form-control(id="inputEmail", type="text" name="email" placeholder="" required)
+                div.form-group
+                    label(for="inputPassword") Password
+                    input.form-control(id="inputPassword", type="password" name="password" placeholder="" required)
+                    input.form-control(type="hidden" name="_csrf" value=csrfToken) 
+                div.form-group
+                    button.btn.btn-primary.btn-block.btn-lg(type="submit") Sign up

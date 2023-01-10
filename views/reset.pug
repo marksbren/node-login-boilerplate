@@ -1,11 +1,16 @@
 extends layout
 
 block content
-    h2 Reset Password
-    form(action=`/reset/${reset_token}` method="POST")
-        p Password:
-            input(type="password" name="password" placeholder="" required)
-        p Confirm Password:
-            input(type="password" name="passwordConfirm" placeholder="" required)
-            input(type="hidden" name="_csrf" value=csrfToken) 
-        input(type="submit")
+    div.row
+        div.col-sm-4.col-sm-offset-4
+            h1 Reset Password
+            form(action=`/reset/${reset_token}` method="POST")
+                div.form-group
+                    label(for="password1") Password
+                    input.form-control(id="password1" type="password" name="password" placeholder="" required)
+                div.form-group
+                    label(for="password2") Confirm Password
+                    input.form-control(id="password2" type="password" name="passwordConfirm" placeholder="" required)
+                    input.form-control(type="hidden" name="_csrf" value=csrfToken) 
+                div.form-group   
+                    button.btn.btn-primary.btn-block.btn-lg(type="submit") Submit
