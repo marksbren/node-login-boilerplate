@@ -29,7 +29,8 @@ exports.create_user = (req, res) => {
     if (err) { return next(err); }
     User.findOne({email: req.body.email}).then((user) => {
       if(user){
-        return res.status(400).json({msg:"Email already exists"})
+        req.flash('error', "Email already exists")
+        return res.redirect('/signup')
       } else {
         const token = crypto.randomBytes(20).toString('hex');
         const newUser = new User({
@@ -37,7 +38,8 @@ exports.create_user = (req, res) => {
           hashed_password: hashedPassword.toString('base64'),
           salt: salt,
           verification_token: token,
-          verification_expires: Date.now() + 3600000
+          verification_expires: Date.now() + 3600000,
+          last_verification_send: Date.now()
         })
         newUser.save()
         var token_url = `http://${req.headers.host}/verify/${token}`

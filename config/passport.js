@@ -26,7 +26,15 @@ const local = new LocalStrategy(
 module.exports = function(passport) {
   passport.serializeUser(function(user, cb) {
     process.nextTick(function() {
-      cb(null, { id: user._id, email: user.email, verified: user.email_verified});
+      var params = { id: user._id, email: user.email, verified: user.email_verified}
+      
+      if(!user.email_verified){
+        var parsedDate = new Date(Date.parse(user.last_verification_send))
+        var newDate = new Date(parsedDate.getTime() + (1000 * 1 * 60))
+        params["next_send"] = newDate.getTime()
+      } //can send again every 3 minutes
+      console.log(params)
+      cb(null, params );
     });
   });
   

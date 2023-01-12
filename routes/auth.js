@@ -52,6 +52,8 @@ router.get('/signup', loggedOutOnly, function(req, res, next) {
 
 router.get('/verify', function(req, res, next) {
   res.render('verify',{ 
+    email: req.user.email,
+    next_send: req.user.next_send,
     errors: req.flash("error"), 
     infos: req.flash("info"), 
     successes: req.flash("success") 
@@ -92,6 +94,35 @@ router.post('/forgot', function(req, res, next) {
   })
 
 });
+
+router.post('/verify/resend', (req, res) => {
+  if (!req.user) {
+    return res.redirect('/login');
+  }
+  if (req.user && req.user.verified){
+    return res.redirect("/dashboard");
+  }
+  //TODO: don't send too many last_verification_send: { $lt:  Date.now() }}
+  var oneMinuteAgo = Date.now() - (1000 * 60)
+  User.findOne({email: req.user.email, last_verification_send: { $lt:  oneMinuteAgo }}).then((user) => {
+    if(!user){
+      req.flash('error', "An error occured");
+      return res.redirect('/verify')
+    }
+    const token = crypto.randomBytes(20).toString('hex');
+    user.verification_token= token
+    user.verification_expires= Date.now() + 3600000
+    user.last_verification_send= Date.now()
+    user.save()
+
+    var token_url = `http://${req.headers.host}/verify/${token}`
+    sendEmailVerification(req.user.email,"",token_url)
+    req.session.passport.user.next_send = Date.now() + (1000 * 1 * 60)
+    req.flash('info', "verification sent");
+    return res.redirect('/verify');
+  })
+  
+})
 
 router.get('/verify/:token', (req, res) => {
   User.findOne({verification_token: req.params.token, verification_expires: { $gt:  Date.now() }}).then((user) => {

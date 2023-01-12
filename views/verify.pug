@@ -3,5 +3,12 @@ extends layout
 block content
   div.row
     div.col-sm-4.col-sm-offset-4
-      h1 Verify your email
-      p Please verify your email address
+      h1 Check your email
+      p We sent an email to #{ email }. Please click the link in that email to complete verification.
+      p It can take a few minutes. Also, remember to check your spam folder.
+      form(action="/verify/resend" method="POST")
+        div.form-group
+          input.form-control(type="hidden" name="_csrf" value=csrfToken) 
+          button.btn.btn-block.btn-default(id="resendButton" type="submit" tegdb=next_send disabled="") Resend
+
+  script(src='/javascripts/verification-countdown.js')

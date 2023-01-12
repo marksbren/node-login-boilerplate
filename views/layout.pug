@@ -13,7 +13,10 @@ html
           a.navbar-brand(href="#") Navbar
         div.collapse.navbar-collapse 
           ul.nav.navbar-nav.navbar-right
-            if !authorized
+            if awaitingVerification
+              li
+                a(href="/logout") Logout
+            else if !authorized
               li
                 a(href="/signup") Signup
               li

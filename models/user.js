@@ -7,6 +7,7 @@ const User = new Schema({
   email_verified: { type: Boolean, default: false },
   verification_token: { type: String, default: '' },
   verification_expires: { type: Date, default: Date.now },
+  last_verification_send: { type: Date, default: Date.now },
   hashed_password: { type: String, default: '' },
   salt: { type: String, default: '' },
   reset_token: { type: String, default: '' },

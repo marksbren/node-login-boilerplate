@@ -52,6 +52,7 @@ module.exports = function(app, passport) {
     res.locals.messages = msgs;
     res.locals.hasMessages = !! msgs.length;
     res.locals.authorized = req.user && req.user.verified
+    res.locals.awaitingVerification = req.user && !req.user.verified
     req.session.messages = [];
     next();
   });
