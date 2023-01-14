@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const User = new Schema({
-  name: { type: String, default: '' },
   email: { type: String, default: '' },
   email_verified: { type: Boolean, default: false },
   verification_token: { type: String, default: '' },
