@@ -102,7 +102,7 @@ router.post('/verify/resend', (req, res) => {
   if (req.user && req.user.verified){
     return res.redirect("/dashboard");
   }
-  //TODO: don't send too many last_verification_send: { $lt:  Date.now() }}
+
   var oneMinuteAgo = Date.now() - (1000 * 60)
   User.findOne({email: req.user.email, last_verification_send: { $lt:  oneMinuteAgo }}).then((user) => {
     if(!user){
@@ -116,7 +116,7 @@ router.post('/verify/resend', (req, res) => {
     user.save()
 
     var token_url = `http://${req.headers.host}/verify/${token}`
-    sendEmailVerification(req.user.email,"",token_url)
+    sendEmailVerification(req.user.email,token_url)
     req.session.passport.user.next_send = Date.now() + (1000 * 1 * 60)
     req.flash('info', "verification sent");
     return res.redirect('/verify');

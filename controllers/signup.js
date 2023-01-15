@@ -43,7 +43,7 @@ exports.create_user = (req, res) => {
         })
         newUser.save()
         var token_url = `http://${req.headers.host}/verify/${token}`
-        sendEmailVerification(newUser.email,newUser.name,token_url)
+        sendEmailVerification(newUser.email,token_url)
 
         req.login(newUser, function(err) {
           if (err) {console.log(err);}

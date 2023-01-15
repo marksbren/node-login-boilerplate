@@ -1,0 +1,26 @@
+extends layout
+
+block content
+  div.row
+    div.col-sm-4.col-sm-offset-4
+      h1 Account
+      form(action="/account/update-email" method="POST")
+        div.form-group
+            h2 Update Email
+            label(for="inputEmail") Email
+            input.form-control(id="inputEmail", type="text" name="email" placeholder="" value=email required)
+            input.form-control(type="hidden" name="_csrf" value=csrfToken)
+        div.form-group
+            button.btn.btn-block(type="submit") Update Email
+      h2 Update Password
+      form(action="/account/update-password" method="POST")
+        div.form-group            
+            label(for="currentPassword") Current Password
+            input.form-control(id="currentPassword", type="password" name="currentPassword" placeholder="" required)
+            label(for="newPassword") New Password
+            input.form-control(id="newPassword", type="password" name="newPassword" placeholder="" required)
+            label(for="newPasswordConfirm") Confirm New Password
+            input.form-control(id="newPasswordConfirm", type="password" name="newPasswordConfirm" placeholder="" required)
+            input.form-control(type="hidden" name="_csrf" value=csrfToken) 
+        div.form-group
+            button.btn.btn-block(type="submit") Update Password
